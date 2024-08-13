@@ -10,7 +10,7 @@ env:
   NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
 jobs:
-  publish-npm:
+  publish-github:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
