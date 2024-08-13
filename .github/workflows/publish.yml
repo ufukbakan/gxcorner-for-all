@@ -4,10 +4,7 @@
 name: "Node build, release & publish"
 
 on:
-  workflow_call:
-    secrets:
-      npm_token:
-        required: true
+  workflow_call
 
 env:
   NODE_AUTH_TOKEN: ${{secrets.npm_token}}
