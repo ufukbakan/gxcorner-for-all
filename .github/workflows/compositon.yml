@@ -1,0 +1,14 @@
+permissions: read-all
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/node.js.yml
+  publish:
+    permissions: write-all
+    needs: build-and-test
+    uses: ./.github/workflows/publish.yml
