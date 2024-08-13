@@ -1,0 +1,5 @@
+*test.*
+*lock.*
+.github/
+node_modules/
+.node-version
