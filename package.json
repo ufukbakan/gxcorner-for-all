@@ -1,0 +1,26 @@
+{
+  "name": "gxcorner-for-all",
+  "version": "1.0.0",
+  "description": "Access GXCorner with any browser",
+  "main": "content.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [
+    "opera",
+    "gxcorner",
+    "any",
+    "browser"
+  ],
+  "author": "Ufuk Bakan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ufukbakan/gxcorner-for-all.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "happy-dom": "^14.12.3",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
+  }
+}
