@@ -1242,9 +1242,3 @@ function chromeSetup() {
 }
 oprSetup();
 chromeSetup();
-const oprScript = document.createElement("script");
-oprScript.innerHTML = oprSetup.toString().replace("function oprSetup()", "");
-const chromeScript = document.createElement("script");
-chromeScript.innerHTML = chromeSetup.toString().replace("function chromeSetup()", "");
-document.body.appendChild(oprScript);
-document.body.appendChild(chromeScript);
