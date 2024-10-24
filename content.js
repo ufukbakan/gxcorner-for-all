@@ -1,6 +1,3 @@
-//@ts-check
-/// <reference lib="dom" />
-
 const url = new URL(window.location.href);
 if (!url.searchParams.has("COUNTRY")) {
     url.searchParams.append("COUNTRY", "US");
@@ -1250,3 +1247,11 @@ function chromeSetup() {
 }
 oprSetup();
 chromeSetup();
+function isFirefox() {
+    return navigator.userAgent.toLowerCase().includes('firefox');
+}
+if(isFirefox()){
+    const style = document.createElement('style');
+    style.innerText = '.borderAnimaton,.borderAnimation{display:none !important;}';
+    document.querySelector("head").appendChild(style);
+}
