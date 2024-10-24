@@ -1,6 +1,8 @@
 //@ts-check
+/// <reference lib="dom" />
+
 const url = new URL(window.location.href);
-if(!url.searchParams.has("COUNTRY")){
+if (!url.searchParams.has("COUNTRY")) {
     url.searchParams.append("COUNTRY", "US");
     window.location.href = url.toString();
 }
@@ -767,7 +769,7 @@ function oprSetup() {
                     }
                 };
                 let value;
-                if(predefined[name]){
+                if (predefined[name]) {
                     value = predefined[name];
                 } else {
                     const primaryColors = {
@@ -1120,12 +1122,18 @@ function chromeSetup() {
         },
         tabs: {
             async getCurrent(cb) {
-                const val = "https://gxcorner.games";
+                const val = location.href;
                 cb(val);
                 return val;
             },
-            async update(cb) { cb(undefined) },
-            async create(cb) { cb(undefined) },
+            async update(data) {
+                if (data && data.url)
+                    location.href = data.url;
+            },
+            async create(data) {
+                if (data && data.url)
+                    window.open(data.url, "_blank").focus();
+            },
             onZoomChange: {},
             onReplaced: {},
             onRemoved: {},
