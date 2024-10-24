@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GXCorner for All",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Allows all browsers to open GXCorner",
   "short_description ": "Access GXCorner without Opera",
   "content_scripts": [
