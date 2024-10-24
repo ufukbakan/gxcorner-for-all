@@ -11,6 +11,11 @@
       "run_at": "document_end",
       "js": ["content.js"]
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "gx-corner-for-all@ufukbakan"
+    }
+  }
 }
   
