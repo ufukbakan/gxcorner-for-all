@@ -3,6 +3,7 @@
 .github/
 node_modules/
 .node-version
+.nvmrc
 *.zip
 icon.svg
 example.png
