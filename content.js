@@ -3,6 +3,41 @@ if (!url.searchParams.has("COUNTRY")) {
     url.searchParams.append("COUNTRY", "US");
     window.location.href = url.toString();
 }
+const prefListeners = [];
+const toStr = (val) => typeof val === "symbol" ? 'symbol' : `${val}`;
+const watchObject = (obj, path = '') => {
+    const handler = {
+        get(target, prop, receiver) {
+            const fullPath = path ? `${toStr(path)}.${toStr(prop)}` : toStr(prop);
+            const value = Reflect.get(target, prop, receiver);
+            console.log(`Property accessed: ${fullPath}`);
+
+            // If the property is a function, return a wrapper function to log calls
+            if (typeof value === 'function') {
+                return function (...args) {
+                    console.log(`Function called: ${fullPath} with arguments:`, args);
+                    return value.apply(this, args);
+                };
+            }
+
+            // If the property is an object, recursively wrap it in a Proxy
+            if (typeof value === 'object' && value !== null) {
+                return watchObject(value, fullPath);
+            }
+
+            return value;
+        },
+        set(target, prop, value, receiver) {
+            const fullPath = path ? `${path}.${prop}` : prop;
+            console.log(`Property set: ${fullPath} = ${value}`);
+            return Reflect.set(target, prop, value, receiver);
+        }
+    };
+
+    return new Proxy(obj, handler);
+};
+const savedSettings = localStorage.getItem('private_settings');
+const privateSettings = savedSettings ? JSON.parse(savedSettings) : [];
 function oprSetup() {
     window.opr = {
         authPrivate: {
@@ -793,7 +828,6 @@ function oprSetup() {
                         }
                     }
                     if (h === undefined) {
-                        console.log(`random hue for ${name}`)
                         h = Math.random() * 360;
                     }
                     let s = 0;
@@ -938,8 +972,56 @@ function chromeSetup() {
             },
         },
         cookies: {
-            get() { },
-            remove() { },
+            get({name, url}, callback) {
+                const cookieString = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+                const value = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : null;
+                callback(value);
+                return value;
+            },
+        
+            getAll(...args) {
+                const cookieArray = document.cookie.split('; ');
+                const cookiesObject = {};
+                cookieArray.forEach(cookie => {
+                    const [key, value] = cookie.split('=');
+                    cookiesObject[key] = decodeURIComponent(value);
+                });
+                return cookiesObject;
+            },
+        
+            getAllCookieStores(...args) {
+                return [
+                    {
+                        id: "default",
+                        tabIds: [],
+                    }
+                ];
+            },
+        
+            remove(name) {
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            },
+        
+            set(name, value, options = {}) {
+                let cookieString = `${name}=${encodeURIComponent(value)}`;
+                if (options.expires) {
+                    cookieString += `; expires=${options.expires.toUTCString()}`;
+                }
+                if (options.path) {
+                    cookieString += `; path=${options.path}`;
+                }
+                if (options.domain) {
+                    cookieString += `; domain=${options.domain}`;
+                }
+                if (options.secure) {
+                    cookieString += `; secure`;
+                }
+                if (options.sameSite) {
+                    cookieString += `; samesite=${options.sameSite}`;
+                }
+                document.cookie = cookieString;
+            },
+
             onChanged: {},
             OnChangedCause: {
                 EVICTED: "evicted",
@@ -1088,11 +1170,28 @@ function chromeSetup() {
             },
         },
         settingsPrivate: {
-            getAllPrefs() { return [] },
-            setPref() { },
+            getAllPrefs(callback) {
+                callback(privateSettings);
+                return privateSettings;
+            },
+            setPref(key, value, callback) {
+                const index = privateSettings.findIndex(setting => setting.key === key);
+                const newValue = { key, value, userControlDisabled: false, type: (typeof value).toUpperCase() };
+                if(index === -1){
+                    privateSettings.push(newValue);
+                } else {
+                    privateSettings[index] = newValue;
+                }
+                prefListeners.forEach(f => f([newValue]));
+                callback([true]);
+            },
             onPrefsChanged: {
-                addListener() { },
-                removeListener() { }
+                addListener(f) {
+                    prefListeners.push(f);
+                },
+                removeListener(f) {
+                    prefListeners = prefListeners.filter(e => e !== f);
+                }
             },
             ControlledBy: {
                 CHILD_RESTRICTION: "CHILD_RESTRICTION",
@@ -1254,4 +1353,9 @@ if(isFirefox()){
     const style = document.createElement('style');
     style.innerText = '.borderAnimaton,.borderAnimation{display:none !important;}';
     document.querySelector("head").appendChild(style);
+}
+if(url.searchParams.has('debug')){
+    const key = url.searchParams.get('debug');
+    const targetObject = window[key];
+    window[key] = watchObject(targetObject);
 }
