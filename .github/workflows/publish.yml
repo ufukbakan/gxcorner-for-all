@@ -43,7 +43,7 @@ jobs:
       - name: Automatic Releases
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          automatic_release_tag: stable
+          automatic_release_tag: ${{steps.get-version.outputs.version}}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
           title: ${{steps.get-version.outputs.title}}
