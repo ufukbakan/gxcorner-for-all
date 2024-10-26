@@ -1,9 +1,15 @@
 const url = new URL(window.location.href);
 if (!url.searchParams.has("COUNTRY")) {
-    url.searchParams.append("COUNTRY", "US");
+    const locale = navigator.language || 'en-US';
+    const [lang, country] = locale.split('-');
+    url.searchParams.append("LANG", lang);
+    url.searchParams.append("COUNTRY", country || lang);
+    url.searchParams.append("LOCALE", locale);
     window.location.href = url.toString();
 }
 const prefListeners = [];
+const savedSettings = localStorage.getItem('private_settings');
+const privateSettings = savedSettings ? JSON.parse(savedSettings) : [];
 const toStr = (val) => typeof val === "symbol" ? 'symbol' : `${val}`;
 const watchObject = (obj, path = '') => {
     const handler = {
@@ -36,8 +42,7 @@ const watchObject = (obj, path = '') => {
 
     return new Proxy(obj, handler);
 };
-const savedSettings = localStorage.getItem('private_settings');
-const privateSettings = savedSettings ? JSON.parse(savedSettings) : [];
+
 function oprSetup() {
     window.opr = {
         authPrivate: {
@@ -1183,6 +1188,7 @@ function chromeSetup() {
                     privateSettings[index] = newValue;
                 }
                 prefListeners.forEach(f => f([newValue]));
+                localStorage.setItem('private_settings', JSON.stringify(privateSettings));
                 callback([true]);
             },
             onPrefsChanged: {
