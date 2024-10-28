@@ -5773,10 +5773,11 @@ function isFirefox() {
     return navigator.userAgent.toLowerCase().includes("firefox");
 }
 if (isFirefox()) {
-    const style = document.createElement("style");
-    style.innerText =
-        ".borderAnimaton,.borderAnimation{display:none !important;}";
-    document.querySelector("head").appendChild(style);
+    window.addEventListener("load", () => {
+        const style = document.createElement("style");
+        style.innerText = ".borderAnimaton,.borderAnimation{display:none !important}.scrollable .wrapper{overflow:hidden}.scrollable .contents .tile .border{display:none}";
+        document.querySelector("head").appendChild(style);
+    });
 }
 if (url.searchParams.has("debug")) {
     const key = url.searchParams.get("debug");
