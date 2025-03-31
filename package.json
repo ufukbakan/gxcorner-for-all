@@ -1,10 +1,11 @@
 {
   "name": "gxcorner-for-all",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Access GXCorner with any browser",
   "main": "content.js",
   "scripts": {
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "bundle": "npm-pack-zip"
   },
   "keywords": [
     "opera",
