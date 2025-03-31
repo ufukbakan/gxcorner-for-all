@@ -1,9 +1,11 @@
 *test.*
 *lock.*
 .github/
+.vscode/
 node_modules/
 .node-version
 .nvmrc
 *.zip
-example.png
+example.*
 icon.svg
+.prettierrc
