@@ -1,15 +1,24 @@
 {
   "manifest_version": 3,
   "name": "GXCorner for All",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Allows all browsers to open GXCorner",
-  "short_description ": "Access GXCorner without Opera",
   "content_scripts": [
     {
-      "matches": ["https://gxcorner.games/*"],
+      "matches": [
+        "https://gxcorner.games/*",
+        "https://*.gxcorner.games/*"
+      ],
       "world": "MAIN",
       "run_at": "document_start",
-      "js": ["content.js"]
+      "js": [
+        "palettes.js",
+        "dictionary.js",
+        "v6-styles.js",
+        "opr.js",
+        "chrome.js",
+        "content.js"
+      ]
     }
   ],
   "browser_specific_settings": {
@@ -22,6 +31,15 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "GXCorner for All",
+    "default_popup": "popup/index.html"
   }
 }
-  
