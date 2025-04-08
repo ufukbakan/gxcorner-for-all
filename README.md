@@ -1,6 +1,6 @@
 # GXCorner for All
 #### Access GXCorner with any browser
-
+<a href="https://ufukbakan.github.io/support" target="_blank"><img height="30" src="https://ufukbakan.github.io/support/support-q2.png"/></a>
 ## Get it on
 <ul>
   <li>
