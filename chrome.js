@@ -317,6 +317,11 @@ window.gxcfa.chromeG = {
                 window.open(data.url, "_blank").focus();
             }
         },
+        async query(info, cb) {
+            const val = [];
+            cb(val);
+            return val;
+        },
         onZoomChange: {},
         onReplaced: {},
         onRemoved: {},
