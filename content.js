@@ -4,6 +4,8 @@ const locale = navigator.language || "en-US";
 const [lang, country] = locale.split("-");
 const originalPushState = history.pushState;
 const originalReplaceState = history.replaceState;
+const originalBack = history.back;
+const originalForward = history.forward;
 let lastBody = '';
 function isBodyChanged() {
   if (lastBody === document.body.innerHTML) return false;
@@ -25,12 +27,26 @@ function onNavigate() {
   prepareSettings();
 }
 history.pushState = async (...args) => {
+  lastBody = document.body.innerHTML;
   originalPushState.apply(history, args);
   await waitFor(isBodyChanged);
   onNavigate();
 };
 history.replaceState = async (...args) => {
+  lastBody = document.body.innerHTML;
   originalReplaceState.apply(history, args);
+  await waitFor(isBodyChanged);
+  onNavigate();
+}
+history.back = async (...args) => {
+  lastBody = document.body.innerHTML;
+  originalBack.apply(history, args);
+  await waitFor(isBodyChanged);
+  onNavigate();
+}
+history.forward = async (...args) => {
+  lastBody = document.body.innerHTML;
+  originalForward.apply(history, args);
   await waitFor(isBodyChanged);
   onNavigate();
 }
@@ -46,6 +62,7 @@ const {
 // #region-end GLOBALS
 
 const sem = {};
+const semReleaseTimers = {};
 function acq(key, timeout = 5000) {
   const startTime = Date.now();
   function tryToAcq(res, rej) {
@@ -56,6 +73,7 @@ function acq(key, timeout = 5000) {
       setTimeout(() => tryToAcq(res, rej), 100);
     } else {
       sem[key] = 1;
+      semReleaseTimers[key] = setTimeout(() => release(key), 5000);
       res();
     }
   }
@@ -63,6 +81,7 @@ function acq(key, timeout = 5000) {
 }
 function release(key) {
   sem[key] = 0;
+  clearTimeout(semReleaseTimers[key]);
 }
 
 const themeOptions = Object.keys(palettes).filter((key) => key !== "base");
@@ -93,16 +112,16 @@ async function waitFor(producer, timeout = 3000) {
   const initTime = Date.now();
   const retry = async (resolve, reject) => {
     if (timeout > 0 && Date.now() > initTime + timeout) {
-      reject("Timeout");
+      return reject("Timeout");
     }
     let result = producer();
     if (result instanceof Promise) {
       result = await result;
     }
     if (result) {
-      resolve(result);
+      return resolve(result);
     } else {
-      setTimeout(() => retry(resolve, reject), 100);
+      return setTimeout(() => retry(resolve, reject), 100);
     }
   };
   return new Promise((resolve, reject) => retry(resolve, reject));
@@ -144,7 +163,7 @@ async function setupPaletteSelector() {
         `<option${option === currentTheme ? " selected" : ""}>${option}</option>`
     );
     const div =
-      parseDom(`<div class="box split svelte-tmfmdp flex w-full justify-between p-1 text-l2 gx-body-s content-center text-nowrap">${dictionary.theme[lang] || dictionary.theme.en
+      parseDom(`<div class="box split svelte-tmfmdp flex w-full justify-between p-1 text-l2 text-text-3 gx-body-s content-center text-nowrap">${dictionary.theme[lang] || dictionary.theme.en
         }
           <div class="button svelte-tmfmdp">
               <select id='theme-select' class='dropdown-for-all'>
@@ -173,9 +192,6 @@ async function setupPaletteSelector() {
 }
 
 async function setupLightModeSelector() {
-  if (location.hostname.startsWith("v6")) {
-    return;
-  }
   try {
     await acq("setupLightModeSelector");
     const lightPref = window.chrome.settingsPrivate.getPref("light-mode");
@@ -187,7 +203,7 @@ async function setupLightModeSelector() {
       (option) =>
         `<option${currentMode === option ? " selected" : ""}>${option}</option>`
     );
-    const div = parseDom(`<div class="box split svelte-tmfmdp flex w-full justify-between p-1 text-l2 gx-body-s content-center text-nowrap">${dictionary.lightMode[lang] || dictionary.lightMode.en
+    const div = parseDom(`<div class="box split svelte-tmfmdp flex w-full justify-between p-1 text-l2 text-text-3 gx-body-s content-center text-nowrap">${dictionary.lightMode[lang] || dictionary.lightMode.en
       }
           <div class="button svelte-tmfmdp">
               <select id='light-mode-select' class='dropdown-for-all'>
@@ -244,7 +260,7 @@ const watchObject = (obj, path = "") => {
           console.log(`Function called: ${fullPath} with arguments:`, ...args);
           const result = value.apply(this, args);
           if (value.name === "getColorHSL" && !result) {
-            console.log("missing color", args);
+            console.warn("missing color", args);
           }
           return result;
         };
@@ -335,11 +351,11 @@ function setV6Styles() {
 
   window.chrome.settingsPrivate.getPref("theme", theme => {
     const { value: themeName } = theme || { value: 'classic' };
-    let commonStyles = 'body{background-color:hsl(var(--env-opera-accent-color-h),var(--env-opera-accent-color-s),2%)}';
+    let commonStyles = 'body{background-color:color-mix(in srgb, var(--color-primary-100) 5%, #000);}';
     const isDark = isDarkMatcher.matches;
     const styles = isDark ? v6Styles.dark : v6Styles.light;
     if (!isDark) {
-      commonStyles = 'body{background-color:hsl(var(--env-opera-accent-color-h),var(--env-opera-accent-color-s),99%)}';
+      commonStyles = 'body{background-color:color-mix(in srgb, var(--color-primary-100) 5%, #fff);}';
     }
 
     styleElement.innerHTML = `:root {
@@ -352,11 +368,11 @@ function setV6Styles() {
 }
 
 // #region V6
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
   if (document.location.hostname.startsWith("v6")) {
     setV6Styles();
   }
-  await prepareSettings();
+  onNavigate();
 });
 
 // #region-end V6

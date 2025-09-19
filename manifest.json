@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "GXCorner for All",
-  "version": "2.0.2",
-  "description": "Allows all browsers to open GXCorner",
+  "version": "2.0.3",
+  "description": "Allows all browsers to open GX Corner",
   "content_scripts": [
     {
       "matches": [

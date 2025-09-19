@@ -420,4 +420,10 @@ window.gxcfa.oprG = {
             VIDEO: "Video",
         },
     },
+    modsPrivate: {
+        onTagsChanged: {
+            addListener() { },
+            removeListener() { },
+        }
+    }
 };
