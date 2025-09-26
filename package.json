@@ -1,6 +1,6 @@
 {
   "name": "gxcorner-for-all",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Access GXCorner with any browser",
   "main": "content.js",
   "scripts": {
