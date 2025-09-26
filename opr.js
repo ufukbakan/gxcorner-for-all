@@ -107,25 +107,19 @@ window.gxcfa.oprG = {
     },
     operaBrowserPrivate: {
         async getChars(cb) {
-            const val = undefined;
-            cb(val);
-            return val;
+            cb(undefined);
         },
         async getEdition(cb) {
-            const val = undefined;
-            cb(val);
-            return val;
+            cb(undefined);
         },
         async getUtmCampaign(cb) {
-            cb("forums_banner");
+            cb("(none)");
         },
         async getProduct(cb) {
             cb("Opera GX");
-            return "Opera GX";
         },
         async getVersion(cb) {
-            cb("112.0.5197.60");
-            return "112.0.5197.60";
+            cb("122.0.5643.79");
         },
     },
     operaIdentityPrivate: {
@@ -390,6 +384,9 @@ window.gxcfa.oprG = {
         },
     },
     wallpapersPrivate: {
+        getSelected(cb) {
+            cb(undefined);
+        },
         onRichWallpaperConfigRegistered: { addListener() { } },
         onRichWallpaperConfigChanged: { addListener() { } },
         onWallpaperTakeoverChanged: { addListener() { } },
@@ -424,6 +421,9 @@ window.gxcfa.oprG = {
         onTagsChanged: {
             addListener() { },
             removeListener() { },
-        }
+        },
+        getTags(cb) {
+            cb([]);
+        },
     }
 };
