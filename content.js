@@ -52,7 +52,7 @@ history.forward = async (...args) => {
 }
 
 const {
-  palettes,
+  paletteNames,
   dictionary,
   v6Styles,
   oprG,
@@ -83,20 +83,6 @@ function release(key) {
   sem[key] = 0;
   clearTimeout(semReleaseTimers[key]);
 }
-
-const themeOptions = Object.keys(palettes).filter((key) => key !== "base");
-
-function getPalette(palette) {
-  return { ...palettes.base, ...palettes[palette] };
-}
-
-function getPredefinedColor(palette, name) {
-  const paletteColors = palettes[palette] || palettes.classic;
-  const value = paletteColors[name] || palettes.base[name];
-  return value;
-}
-
-// #region-end PALETTES
 
 // #region SETTINGS
 
@@ -158,7 +144,7 @@ async function setupPaletteSelector() {
 
     const themePref = window.chrome.settingsPrivate.getPref("theme");
     const currentTheme = themePref ? themePref.value : "classic";
-    const options = themeOptions.map(
+    const options = paletteNames.map(
       (option) =>
         `<option${option === currentTheme ? " selected" : ""}>${option}</option>`
     );
@@ -230,8 +216,6 @@ async function setupLightModeSelector() {
 // #region-end SETTINGS
 
 // #region MAIN
-
-const isTrueStr = (str) => ["1", "true", "TRUE", "True"].includes(str);
 const url = new URL(window.location.href);
 if (!url.searchParams.has("COUNTRY")) {
   url.searchParams.append("LANG", lang);
@@ -283,15 +267,9 @@ const watchObject = (obj, path = "") => {
   return new Proxy(obj, handler);
 };
 
-function oprSetup() {
-  window.opr = oprG;
-}
-function chromeSetup() {
-  window.chrome = chromeG;
-}
+window.opr = oprG;
+window.chrome = chromeG;
 
-oprSetup();
-chromeSetup();
 if (!window.originalMatchMedia) {
   window.originalMatchMedia = window.matchMedia;
 }
@@ -331,8 +309,7 @@ function isFirefox() {
 if (isFirefox()) {
   window.addEventListener("load", () => {
     const style = document.createElement("style");
-    style.innerText =
-      ".borderAnimaton,.borderAnimation{display:none !important}.scrollable .wrapper{overflow:hidden}.scrollable .contents .tile .border{display:none}";
+    style.innerText = ".no-mask{mask-image:none !important}header{align-self:center}";
     document.head.appendChild(style);
   });
 }
@@ -369,12 +346,9 @@ function setV6Styles() {
 
 // #region V6
 window.addEventListener("load", () => {
-  if (document.location.hostname.startsWith("v6")) {
-    setV6Styles();
-  }
+  setV6Styles();
   onNavigate();
 });
-
 // #region-end V6
 if (url.searchParams.has("debug")) {
   const key = url.searchParams.get("debug");
